@@ -16,10 +16,14 @@ var (
 )
 
 func getOriginalTermios(fd int) (unix.Termios, error) {
-	var err error
+	var (
+		origTermiosPtr *unix.Termios
+		err            error
+	)
 	saveTermiosOnce.Do(func() {
 		saveTermiosFD = fd
-		err = termios.Tcgetattr(uintptr(fd), &saveTermios)
+		origTermiosPtr, err = termios.Tcgetattr(uintptr(fd))
+		saveTermios = *origTermiosPtr
 	})
 	return saveTermios, err
 }
